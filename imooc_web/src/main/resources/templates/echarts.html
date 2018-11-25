@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>imooc_stat</title>
+
+    <!-- import ECharts file -->
+    <script src="js/echarts.min.js"></script>
+
+    <!-- import jQuery file -->
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+
+
+<!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+<div id="main" style="width: 600px;height:400px;position: absolute; top:50%; left: 50%; margin-top: -200px;margin-left: -300px"></div>
+
+
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+
+    // 指定图表的配置项和数据
+    var option = {
+        title : {
+            text: 'Real-time streaming statistics',
+            subtext: 'Page view of each cours',
+            x:'center'
+        },
+        tooltip : {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left'
+        },
+        series : [
+            {
+                name: 'Click count',
+                type: 'pie',
+                radius : '55%',
+                center: ['50%', '60%'],
+                data: (function(){ //<![CDATA[
+                    var datas = [];
+                    $.ajax({
+                        type: "POST",
+                        url: "/imooc/course_clickcount_dynamic",
+                        dataType: 'json',
+                        async: false,
+                        success: function(result) {
+                            for(var i=0; i<result.length; i++) {
+                                datas.push({"value":result[i].value, "name":result[i].name})
+                            }
+                        }
+                    })
+                    return datas;
+                    //]]>
+                })(),
+                itemStyle: {
+                    emphasis: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        ]
+    };
+
+
+    myChart.setOption(option);
+</script>
+</body>
+</html>
